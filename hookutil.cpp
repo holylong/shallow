@@ -22,9 +22,46 @@
 
 #include "hookutil.h"
 #include <mousehistory.h>
+#include <keyboardhistory.h>
 #include <QDebug>
 
 static HHOOK hMouseHook = NULL;
+static HHOOK hKeyBoardHook = NULL;
+
+LRESULT CALLBACK KeyboardHookProc(int nCode, WPARAM wParam, LPARAM lParam);
+HMODULE WINAPI ModuleFromAddress(PVOID pv);
+
+
+LRESULT KeyboardHookProc(int nCode, WPARAM wParam, LPARAM lParam)
+{
+    KBDLLHOOKSTRUCT *Key_Info = (KBDLLHOOKSTRUCT *)lParam;
+    if (HC_ACTION == nCode)
+    {
+        if (WM_KEYDOWN == wParam || WM_SYSKEYDOWN == wParam)
+        {
+            if (KeyboardHistory::instance())
+            {
+                LPSTR str = new CHAR[255];
+                LPARAM lpm = MapVirtualKeyA(Key_Info->vkCode, 0);
+//                GetKeyState();/GetAsyncKeyState()
+                GetKeyNameText(lpm * 65536, str, sizeof(str));
+                KeyboardHistory::instance()->setKeyValueName(QString::fromUtf8(str));
+                delete[] str;
+            }
+        }else if(WM_KEYUP == wParam || WM_SYSKEYUP == wParam){
+            if (KeyboardHistory::instance())
+            {
+                LPSTR str = new CHAR[255];
+                LPARAM lpm = MapVirtualKeyA(Key_Info->vkCode, 0);
+//                GetKeyState();/GetAsyncKeyState()
+                GetKeyNameText(lpm * 65536, str, sizeof(str));
+                KeyboardHistory::instance()->resetKeyValueName(QString::fromUtf8(str));
+                delete[] str;
+            }
+        }
+    }
+    return CallNextHookEx(hKeyBoardHook, nCode, wParam, lParam);
+}
 
 HMODULE ModuleFromAddress(PVOID pv)
 {
@@ -37,6 +74,18 @@ HMODULE ModuleFromAddress(PVOID pv)
     {
         return NULL;
     }
+}
+
+int startKeyBoardHook()
+{
+    hKeyBoardHook = SetWindowsHookExW(WH_KEYBOARD_LL, KeyboardHookProc, ModuleFromAddress((PVOID)KeyboardHookProc), 0);
+    int error = GetLastError();
+    return error;
+}
+
+bool stopKeyBoardHook()
+{
+    return UnhookWindowsHookEx(hKeyBoardHook);
 }
 
 bool stopMouseHook()

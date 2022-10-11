@@ -31,4 +31,9 @@ int startMouseHook();
 
 bool stopMouseHook();
 
+
+int startKeyBoardHook();
+
+bool stopKeyBoardHook();
+
 #endif // HOOKUTIL_H

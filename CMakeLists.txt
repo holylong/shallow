@@ -59,6 +59,11 @@ set(PROJECT_SOURCES
         hookutil.h hookutil.cpp
         mousehistory.h
 
+        keyboardwidget.h keyboardwidget.cpp
+        myapplication.h myapplication.cpp
+
+        keyboardhistory.h
+
         app.qrc
         app_win32.rc
 )

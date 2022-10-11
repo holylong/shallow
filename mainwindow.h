@@ -26,9 +26,12 @@
 #include <QMainWindow>
 #include <QPaintEvent>
 #include <QMouseEvent>
+#include <unordered_map>
+#include <QVector>
 
 class QSystemTrayIcon;
 class QMenu;
+class KeyboardWidget;
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -48,13 +51,21 @@ protected:
 private:
     void InitTrayIcon();
 
+    void eraseKey(QString);
+    void displayKey();
+
 private:
     Ui::MainWindow *ui;
 
     QSystemTrayIcon *_trayIcon{nullptr};
     QMenu           *_trayMenu{nullptr};
+    KeyboardWidget  *_keyboard{nullptr};
 
     //鼠标点击事件
     bool            pressed_{false};
+
+//    std::unordered_map<QString, uint32_t> _keyMaps;
+//    QVector<QString> _keyVec;
+    std::vector<QString> _keyVec;
 };
 #endif // MAINWINDOW_H

@@ -1,3 +1,4 @@
 build-shallow-Desktop_Qt_5_12_11_MSVC2017_64bit-Debug 
 build-shallow-Desktop_Qt_5_12_11_MSVC2017_64bit-Release 
 CMakeLists.txt.user 
+build_ninja 

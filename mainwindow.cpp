@@ -24,16 +24,24 @@
 #include "./ui_mainwindow.h"
 #include <hookutil.h>
 #include <mousehistory.h>
+#include <keyboardhistory.h>
 #include <QPainter>
 #include <QDebug>
 #include <QMenu>
 #include <QSystemTrayIcon>
+#include "keyboardwidget.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
+    qDebug() << __FUNCTION__;
     ui->setupUi(this);
+
+    _keyboard = new KeyboardWidget;
+    QString ctx = "";
+    _keyboard->updateContent(ctx);
+    _keyboard->show();
 
     InitTrayIcon();
 
@@ -46,6 +54,17 @@ MainWindow::MainWindow(QWidget *parent)
         move(x-25, y-25);
     });
 
+    connect(KeyboardHistory::instance(), &KeyboardHistory::getKeyName, [=](QString& key){
+        std::vector<QString>::iterator it = std::find(_keyVec.begin(), _keyVec.end(), key);
+        if(it == _keyVec.end())_keyVec.push_back(key);
+        displayKey();
+    });
+
+    connect(KeyboardHistory::instance(), &KeyboardHistory::dropKeyName, [=](QString& key){
+        eraseKey(key);
+        displayKey();
+    });
+
     connect(MouseHistory::instance(), &MouseHistory::getPress, [=](int key){
         if(key == 1)
             pressed_ = true;
@@ -56,6 +75,27 @@ MainWindow::MainWindow(QWidget *parent)
     });
 
     startMouseHook();
+    startKeyBoardHook();
+}
+
+void MainWindow::displayKey()
+{
+    QString ctx = "";int index = 0;
+    for(auto key : _keyVec){
+        ctx += key;
+        if(++index != _keyVec.size())
+            ctx += " + ";
+    }
+    _keyboard->updateContent(ctx);
+}
+
+void MainWindow::eraseKey(QString key){
+    std::vector<QString>::iterator it = std::find(_keyVec.begin(), _keyVec.end(), key);
+    while (it != _keyVec.end())
+    {
+        it = _keyVec.erase(it);
+        it = std::find(it, _keyVec.end(), key);
+    }
 }
 
 void MainWindow::InitTrayIcon()
@@ -64,10 +104,6 @@ void MainWindow::InitTrayIcon()
     _trayIcon->setIcon(QIcon(":/res/cat.ico"));
     _trayIcon->setToolTip("Shallow");
     _trayMenu = new QMenu(this);
-//    _trayMenu->addAction(tr("显示Shallow窗口"),this,[=](){
-//          this->show();
-//          this->activateWindow();
-//     });
     _trayMenu->addAction(tr("退出Shallow"),this,[=](){
           qApp->quit();
      });
@@ -89,11 +125,13 @@ void MainWindow::paintEvent(QPaintEvent *event)
     painter.setRenderHint(QPainter::Antialiasing, true);
     painter.save();
     painter.drawEllipse(QPoint(this->rect().left()+25, this->rect().top()+25), 25, 25);
+    painter.restore();
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
     stopMouseHook();
+    stopKeyBoardHook();
 }
 

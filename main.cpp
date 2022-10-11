@@ -21,14 +21,15 @@
 // SOFTWARE.
 
 #include "mainwindow.h"
-
+#include "myapplication.h"
 #include <QApplication>
 
-#pragma comment(linker, "/subsystem:\"windows\" /entry:\"mainCRTStartup\"" )
+//#pragma comment(linker, "/subsystem:\"windows\" /entry:\"mainCRTStartup\"" )
 
 int main(int argc, char *argv[])
 {
-    QApplication app(argc, argv);
+//    QApplication app(argc, argv);
+    MyApplication app(argc, argv);
     app.setWindowIcon(QIcon(":/res/cat.ico"));
     MainWindow w;
     w.show();

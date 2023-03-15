@@ -7,11 +7,11 @@
 KeyboardWidget::KeyboardWidget(QWidget *parent) : QWidget(parent)
 {
     setAttribute(Qt::WA_TransparentForMouseEvents, true);
-    setFixedSize(QSize(300,50));
+    setFixedSize(QSize(400,50));
     setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::SplashScreen);
     setAttribute(Qt::WA_TranslucentBackground, true);
 
-    move(qApp->desktop()->availableGeometry().width() - 300, qApp->desktop()->availableGeometry().height()-100);
+    move(qApp->desktop()->availableGeometry().width()/2 - 150, qApp->desktop()->availableGeometry().height()-100);
 
     _labelKeyboard = new QLabel();
     _labelKeyboard->setScaledContents(true);

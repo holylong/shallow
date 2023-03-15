@@ -81,12 +81,18 @@ MainWindow::MainWindow(QWidget *parent)
 void MainWindow::displayKey()
 {
     QString ctx = "";int index = 0;
+    bool showkey = false;
     for(auto key : _keyVec){
+        if(key == "Shift" || key == "Enter" || key == "Ctrl" || key == "Space" || key == "Alt"
+                || key == "")showkey = true;
+        if(key == "") key = "Win";
         ctx += key;
         if(++index != _keyVec.size())
             ctx += " + ";
     }
-    _keyboard->updateContent(ctx);
+    if(showkey || _keyVec.size() == 0)
+        _keyboard->updateContent(ctx);
+    showkey = false;
 }
 
 void MainWindow::eraseKey(QString key){
